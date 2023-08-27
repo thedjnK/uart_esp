@@ -1,0 +1,142 @@
+/*
+ * Copyright (c) 2021 Laird Connectivity
+ * Copyright (c) 2023 Jamie M.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/dts-v1/;
+#include <nordic/nrf52840_qiaa.dtsi>
+#include "bl654_sensor_board_no_sb-pinctrl.dtsi"
+#include <zephyr/dt-bindings/input/input-event-codes.h>
+
+/ {
+	model = "Laird BL654 Sensor Board";
+	compatible = "lairdconnect,bl654-sensor-board";
+
+	chosen {
+		zephyr,console = &uart0;
+		zephyr,shell-uart = &uart0;
+		zephyr,uart-mcumgr = &uart0;
+		zephyr,sram = &sram0;
+		zephyr,flash = &flash0;
+		zephyr,code-partition = &slot0_partition;
+	};
+
+	leds {
+		compatible = "gpio-leds";
+		led1: led_1 {
+			gpios = <&gpio0 16 GPIO_ACTIVE_LOW>;
+			label = "Blue LED 1";
+		};
+	};
+
+	buttons {
+		compatible = "gpio-keys";
+		button1: button_1 {
+			gpios = <&gpio1 3 GPIO_ACTIVE_HIGH>;
+			label = "Push button switch 1 (SW1)";
+			zephyr,code = <INPUT_KEY_0>;
+		};
+	};
+
+	/* These aliases are provided for compatibility with samples */
+	aliases {
+		led0 = &led1;
+		sw0 = &button1;
+		mcuboot-button0 = &button1;
+		mcuboot-led0 = &led1;
+		watchdog0 = &wdt0;
+	};
+};
+
+&adc {
+	status = "okay";
+};
+
+&gpiote {
+	status = "okay";
+};
+
+&gpio0 {
+	status = "okay";
+};
+
+&gpio1 {
+	status = "okay";
+};
+
+&uart0 {
+	compatible = "nordic,nrf-uart";
+	current-speed = <115200>;
+	status = "okay";
+	pinctrl-0 = <&uart0_default>;
+	pinctrl-1 = <&uart0_sleep>;
+	pinctrl-names = "default", "sleep";
+};
+
+&i2c0 {
+	compatible = "nordic,nrf-twi";
+	status = "okay";
+
+	pinctrl-0 = <&i2c0_default>;
+	pinctrl-1 = <&i2c0_sleep>;
+	pinctrl-names = "default", "sleep";
+	bme280@76 {
+		compatible = "bosch,bme280";
+		status = "okay";
+		reg = <0x76>;
+	};
+};
+
+&pwm0 {
+	status = "disabled";
+	pinctrl-0 = <&pwm0_default>;
+	pinctrl-1 = <&pwm0_sleep>;
+	pinctrl-names = "default", "sleep";
+};
+
+&radio {
+	status = "disabled";
+};
+
+&ieee802154 {
+	status = "disabled";
+};
+
+&flash0 {
+	partitions {
+		compatible = "fixed-partitions";
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		old_stuff_partition: partition@0 {
+			label = "MBR and SD";
+			reg = <0x00000000 0x00026000>;
+			read-only;
+		};
+		boot_partition: partition@27000 {
+			label = "mcuboot";
+			reg = <0x00027000 0x00008000>;
+		};
+		slot0_partition: partition@2f000 {
+			label = "image-0";
+			reg = <0x0002f000 0x000b6000>;
+		};
+
+		/*
+		 * Storage partition will be used by FCB/LittleFS/NVS
+		 * if enabled.
+		 */
+		storage_partition: partition@e5000 {
+			label = "storage";
+			reg = <0x000e5000 0x00008000>;
+		};
+
+		old_bootloader_partition: partition@ed000 {
+			label = "old bootloader";
+			reg = <0x000ed000 0x00013000>;
+			read-only;
+		};
+	};
+};
