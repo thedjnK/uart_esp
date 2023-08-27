@@ -1,4 +1,12 @@
 config BL654_SB_LEAVE_SPACE
 	bool "Leave space for sB bootloader"
 	help
-	  Leaves a space where the BL654 sB bootloader string can be placed
+	  Leaves a space where the BL654 sB bootloader string can be placed.
+
+config BL654_SB_PERUSER_ERASE
+	bool "Return to sB bootloader on stat serial recovery command"
+	default y
+	depends on ENABLE_MGMT_PERUSER
+	help
+	  This allows returning back to the sB bootloader from MCUboot serial recovery mode by
+	  issuing any command which targets the stat group.
