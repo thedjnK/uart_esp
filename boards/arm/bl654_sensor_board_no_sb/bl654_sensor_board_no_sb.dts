@@ -111,7 +111,7 @@
 		#size-cells = <1>;
 
 		old_stuff_partition: partition@0 {
-			label = "MBR and SD";
+			label = "MBR-and-SD";
 			reg = <0x00000000 0x00026000>;
 			read-only;
 		};
@@ -133,8 +133,8 @@
 			reg = <0x000e5000 0x00008000>;
 		};
 
-		old_bootloader_partition: partition@ed000 {
-			label = "old bootloader";
+		sb_bootloader_partition: partition@ed000 {
+			label = "sb-bootloader";
 			reg = <0x000ed000 0x00013000>;
 			read-only;
 		};
