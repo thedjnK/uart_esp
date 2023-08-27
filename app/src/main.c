@@ -15,6 +15,7 @@
 LOG_MODULE_REGISTER(abe, CONFIG_APPLICATION_LOG_LEVEL);
 
 const struct device *const dev = DEVICE_DT_GET_ANY(bosch_bme280);
+const uint8_t device_number = '0';
 
 int main(void)
 {
@@ -95,18 +96,46 @@ static int ess_readings_handler(const struct shell *sh, size_t argc, char **argv
 static int ess_readings_handler(const struct shell *sh, size_t argc, char **argv)
 {
 	uint8_t buffer[256] = {0};
-	struct sensor_value temperature, pressure, humidity;
-	float temperature_float, pressure_float, humidity_float;
+#ifdef CONFIG_APP_ESS_TEMPERATURE
+	struct sensor_value temperature;
+#endif
+#ifdef CONFIG_APP_ESS_HUMIDITY
+	struct sensor_value humidity;
+#endif
+#ifdef CONFIG_APP_ESS_PRESSURE
+	struct sensor_value pressure;
+#endif
+#ifdef CONFIG_APP_ESS_TEMPERATURE
+	float temperature_float;
+#endif
+#ifdef CONFIG_APP_ESS_HUMIDITY
+	float humidity_float;
+#endif
+#ifdef CONFIG_APP_ESS_PRESSURE
+	float pressure_float;
+#endif
 
 	sensor_sample_fetch(dev);
 
+#ifdef CONFIG_APP_ESS_TEMPERATURE
 	sensor_channel_get(dev, SENSOR_CHAN_AMBIENT_TEMP, &temperature);
-	sensor_channel_get(dev, SENSOR_CHAN_PRESS, &pressure);
+#endif
+#ifdef CONFIG_APP_ESS_HUMIDITY
 	sensor_channel_get(dev, SENSOR_CHAN_HUMIDITY, &humidity);
+#endif
+#ifdef CONFIG_APP_ESS_PRESSURE
+	sensor_channel_get(dev, SENSOR_CHAN_PRESS, &pressure);
+#endif
 
+#ifdef CONFIG_APP_ESS_TEMPERATURE
 	temperature_float = sensor_value_to_float(&temperature);
-	pressure_float = sensor_value_to_float(&pressure);
+#endif
+#ifdef CONFIG_APP_ESS_HUMIDITY
 	humidity_float = sensor_value_to_float(&humidity);
+#endif
+#ifdef CONFIG_APP_ESS_PRESSURE
+	pressure_float = sensor_value_to_float(&pressure);
+#endif
 
 	sprintf(&buffer[0], "device,"
 #ifdef CONFIG_APP_ESS_TEMPERATURE
@@ -123,7 +152,7 @@ static int ess_readings_handler(const struct shell *sh, size_t argc, char **argv
 #endif
 		"\n");
 
-	sprintf(&buffer[strlen(buffer)],
+	sprintf(&buffer[strlen(buffer)], "%c,"
 #ifdef CONFIG_APP_ESS_TEMPERATURE
 		"%.2f,"
 #endif
@@ -136,7 +165,7 @@ static int ess_readings_handler(const struct shell *sh, size_t argc, char **argv
 #ifdef CONFIG_APP_ESS_DEW_POINT
 		"%d,"
 #endif
-		"\n"
+		"\n", device_number
 #ifdef CONFIG_APP_ESS_TEMPERATURE
 		, temperature_float
 #endif
