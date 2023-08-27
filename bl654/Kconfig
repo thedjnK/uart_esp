@@ -1,0 +1,4 @@
+config BL654_SB_LEAVE_SPACE
+	bool "Leave space for sB bootloader"
+	help
+	  Leaves a space where the BL654 sB bootloader string can be placed
